@@ -4,12 +4,7 @@ Averages class probabilities from RF, XGB (17-feature) and MLP then computes met
 
 Classes: 0=baseline (No Event), 1=spontaneous (Event)
 
-RF/XGB probabilities come from the 17-feature retrain (results_organoid_17/).
-MLP probabilities come from the original run (results_organoid/) — MLP uses
-raw waveforms, not engineered features, so it wasn't retrained.
-
-Output is written to results_organoid_17/ to keep this run's ensemble results
-alongside the 17-feature RF/XGB numbers, not mixed with the old 12-feature ones.
+Output is written to results_organoid_17/
 """
 
 import os, json, numpy as np, pandas as pd
@@ -69,7 +64,7 @@ def main():
     proba_paths = {
         'rf':  rf"{BASE}\results_organoid_17\rf_proba.npy",
         'xgb': rf"{BASE}\results_organoid_17\xgb_proba.npy",
-        'mlp': rf"{BASE}\results_organoid\mlp_proba.npy",
+        'mlp': rf"{BASE}\results_organoid_17\mlp_proba.npy",
     }
 
     missing = []

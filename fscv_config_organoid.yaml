@@ -1,0 +1,26 @@
+# ============================================================
+# FSCV Pipeline Configuration — Organoid (BINARY)
+# Swap this file to change preparation without touching code.
+# ============================================================
+
+# Acquisition parameters
+fscv_hz: 10.0         # frames per second
+
+# Windowing (used in make_windows_organoid.py)
+# window_frames is fixed at int(2.0 * fscv_hz) = 20 frames (hardcoded in script, not configurable here)
+# BG_FRAMES is derived as int(5.0 * fscv_hz)
+stride: 5             # step size in frames between windows
+max_nothing: 50       # max baseline windows extracted per file
+
+# Voltage row indices (Jackson waveform, verified from voltage-datapoints.xlsx)
+# row 0=0.2V, row 199=0.6V (oxidation peak), row 399=1.0V (turnaround),
+# row 899=0.0V (reduction trough), row 1099=0.2V
+# Organoid oxidation peak confirmed at row 213 — falls within this band
+v_oxidation_start: 150   # start of oxidation window (rows)
+v_oxidation_end: 300     # end of oxidation window (rows)
+v_reduction_start: 800   # start of reduction window (rows)
+v_reduction_end: 1000    # end of reduction window (rows)
+
+# Class balancing (used in extract_features_organoid.py)
+# Baseline windows capped at balance_ratio * n_spontaneous
+balance_ratio: 2

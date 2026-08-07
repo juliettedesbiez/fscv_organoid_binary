@@ -32,15 +32,6 @@ CV results from step 3 look good.
 `utils_organoid.py` is not run directly — it's a shared helper module
 imported by steps 3–6 (metrics, data loading, `RANDOM_STATE`, `select_models`).
 
-⚠️ **Step 5 quirk:** `ensemble_organoid_17.py` reads RF and XGB probabilities
-from `results_organoid_17/`, but reads **MLP** probabilities from a
-different, older folder — `results_organoid/` (no `_17`). This is because
-MLP trains on raw waveforms, not the engineered features, so its results
-from the original run are still valid and weren't rerun for the 17-feature
-retrain. Make sure `results_organoid\mlp_proba.npy` exists (from an earlier
-run of the original, non-`_17` pipeline) before running step 5, or it will
-fail to find it.
-
 ---
 
 ## 2. What needs changing before you run anything

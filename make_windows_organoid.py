@@ -26,7 +26,8 @@ def load_config(path="fscv_config_organoid.yaml"):
 
 def load_arr(path):
     arr = np.load(path) if path.endswith('.npy') else np.loadtxt(path)
-    return arr[np.newaxis, :] if arr.ndim == 1 else arr
+    arr = arr[np.newaxis, :] if arr.ndim == 1 else arr
+    return -arr
 
 def process_file(arr, fname, file_id, group_id, file_labels, meta_rows,
                  w_counter, label_val, cfg, window_frames, stride, max_nothing):

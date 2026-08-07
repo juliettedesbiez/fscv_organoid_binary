@@ -8,25 +8,31 @@ from sklearn.metrics import roc_auc_score
 RANDOM_STATE = 42
 CLASS_NAMES  = ['No Event', 'Event']
 
+# BASE covers everything this file reads — features_organoid_17.csv and window_arrays/ both live under it
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
+
+
 def load_features():
-    """Load engineered features from features_organoid.csv."""
+    """Load engineered features from features_organoid_17.csv."""
     print("Loading engineered features...")
-    df = pd.read_csv(r"C:\Users\julie\OneDrive - Imperial College London\organoid data output\features_organoid_17.csv")
+    df = pd.read_csv(rf"{BASE}\features_organoid_17.csv")
     feat_cols = [c for c in df.columns if c not in ['window_id', 'label', 'group_id']]
     X = df[feat_cols].values.astype(np.float32)
     y, groups = df['label'].values, df['group_id'].astype(str).values
     print(f"  {len(y)} windows, {len(feat_cols)} features, {len(np.unique(groups))} groups")
     return X, y, groups
 
+
 def load_raw_for_features():
-    """Load raw flattened windows matching features_organoid.csv order."""
+    """Load raw flattened windows matching features_organoid_17.csv order."""
     print("Loading raw windows...")
-    df = pd.read_csv(r"C:\Users\julie\OneDrive - Imperial College London\organoid data output\features_organoid_17.csv")
-    X = np.array([np.load(rf"C:\Users\julie\OneDrive - Imperial College London\organoid data output\window_arrays\{wid}.npy").flatten()
+    df = pd.read_csv(rf"{BASE}\features_organoid_17.csv")
+    X = np.array([np.load(rf"{BASE}\window_arrays\{wid}.npy").flatten()
               for wid in df['window_id']], dtype=np.float32)
     y, groups = df['label'].values, df['group_id'].astype(str).values
     print(f"  {len(y)} windows, {X.shape[1]} raw features")
     return X, y, groups
+
 
 def compute_metrics(y_true, y_proba):
     """
@@ -48,6 +54,7 @@ def compute_metrics(y_true, y_proba):
     }
     return metrics
 
+
 def print_metrics(metrics, name):
     """Print binary metrics to terminal."""
     print(f"\n{name} RESULTS")
@@ -64,10 +71,11 @@ def print_metrics(metrics, name):
     for i, row in enumerate(metrics['confusion_matrix']):
         print(f"    {CLASS_NAMES[i]:14}", "  ".join(f"{v:>14}" for v in row))
 
+
 def select_models(action="train"):
     """Interactive model selection."""
-    print(f"\nSelect models to {action}: 1=RF  2=XGB  3=MLP  4=CNN  5=LSTM  6=ALL  0=Exit")
+    print(f"\nSelect models to {action}: 1=RF  2=XGB  3=MLP  4=ALL  0=Exit")
     choice = input("Choice: ").strip()
     if choice == '0': return []
-    if choice == '6': return ['rf', 'xgb', 'mlp', 'cnn', 'lstm']
-    return [{'1': 'rf', '2': 'xgb', '3': 'mlp', '4': 'cnn', '5': 'lstm'}.get(c) for c in choice if c in '12345']
+    if choice == '4': return ['rf', 'xgb', 'mlp']
+    return [{'1': 'rf', '2': 'xgb', '3': 'mlp'}.get(c) for c in choice if c in '123']

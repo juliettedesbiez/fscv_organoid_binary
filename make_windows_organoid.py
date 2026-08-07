@@ -3,7 +3,7 @@ FSCV Window Generator — Organoid (BINARY)
 Usage: python make_windows_organoid.py [--config fscv_config_organoid.yaml]
 
 Classes: 0=baseline, 1=spontaneous
-(Labelled via Labelling_App_organoid.py, which is 3-class capable but only
+(Labelled via Labelling_App.py, which is 3-class capable but only
 0/1 are ever assigned for organoid data — label 2 is filtered out defensively below.)
 """
 
@@ -15,7 +15,10 @@ import yaml
 # Paths - organoid-specific
 PLOT_DIR   = r"C:\Users\julie\OneDrive - Imperial College London\organoid data"       # <-- confirm exact folder name
 LABELS_CSV = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output\FSCV_Labels_July.csv"  # <-- confirm exact filename from Labelling_App_organoid.py
-WINDOW_DIR = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output\window_arrays"
+
+# BASE covers everything this script writes — window_arrays/ and windows_metadata.csv both live under it
+BASE       = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
+WINDOW_DIR = rf"{BASE}\window_arrays"
 
 def load_config(path="fscv_config_organoid.yaml"):
     with open(path, 'r') as f:
@@ -129,7 +132,7 @@ def main():
     df = pd.DataFrame(meta_rows)
     for col in ['window_id', 'file_id', 'group_id']: df[col] = df[col].astype(str)
     df['label'] = df['label'].astype(int)
-    df.to_csv(r"C:\Users\julie\OneDrive - Imperial College London\organoid data output\windows_metadata.csv", index=False)
+    df.to_csv(rf"{BASE}\windows_metadata.csv", index=False)
 
     print(f"\n{'='*70}\nSUMMARY\n{'='*70}")
     print(f"Total windows: {len(df)}")

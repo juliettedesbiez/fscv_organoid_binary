@@ -2,11 +2,6 @@
 analyse_organoid.py
 Analysis and figure generation for organoid BINARY classifier.
 
-RF/XGB come from the 17-feature retrain (models_organoid_17/, features_organoid_17.csv,
-windows_metadata_test_organoid_17.csv). MLP comes from the original run
-(models_organoid/) — MLP uses raw waveforms, not engineered features, so it
-wasn't retrained and doesn't need the _17 test split.
-
 Generates:
   figures_organoid/roc_curves_test.jpg
   figures_organoid/pr_curves_test.jpg
@@ -37,7 +32,7 @@ from extract_features_organoid_17 import extract, load_config
 
 warnings.filterwarnings('ignore')
 
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
 os.makedirs(rf"{BASE}\figures_organoid_17", exist_ok=True)
 
 CLASS_NAMES  = ['No Event', 'Event']
@@ -95,7 +90,7 @@ print("Loading models...")
 rf_data  = pickle.load(open(rf"{BASE}\models_organoid_17\rf_model.pkl",  'rb'))
 xgb_data = pickle.load(open(rf"{BASE}\models_organoid_17\xgb_model.pkl", 'rb'))
 # MLP: original run, unaffected by the feature-engineering change
-mlp_data = pickle.load(open(rf"{BASE}\models_organoid\mlp_model.pkl", 'rb'))
+mlp_data = pickle.load(open(rf"{BASE}\models_organoid_17\mlp_model.pkl", 'rb'))
 
 rf_proba  = rf_data['model'].predict_proba(X_feat)        # (n, 2)
 xgb_proba = xgb_data['model'].predict_proba(X_feat)       # (n, 2)

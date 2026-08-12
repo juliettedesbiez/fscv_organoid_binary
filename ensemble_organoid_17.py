@@ -11,7 +11,7 @@ import os, json, numpy as np, pandas as pd
 from sklearn.metrics import (f1_score, confusion_matrix,
                              precision_score, recall_score, roc_auc_score)
 
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
 CLASS_NAMES = ['No Event', 'Event']
 
 def compute_binary_metrics(y_true, y_proba):

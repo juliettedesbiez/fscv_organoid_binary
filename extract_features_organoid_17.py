@@ -26,7 +26,7 @@ import yaml
 from scipy.stats import skew, kurtosis
 from utils_organoid import RANDOM_STATE
  
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
  
 def load_config(path="fscv_config_organoid.yaml"):
     with open(path, 'r') as f:

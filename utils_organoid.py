@@ -9,7 +9,7 @@ RANDOM_STATE = 42
 CLASS_NAMES  = ['No Event', 'Event']
 
 # BASE covers everything this file reads — features_organoid_17.csv and window_arrays/ both live under it
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
 
 
 def load_features():

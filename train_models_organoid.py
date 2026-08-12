@@ -29,7 +29,7 @@ N_VOLTAGE_PTS = 1100
 MLP_INPUT     = N_VOLTAGE_PTS * WINDOW_FRAMES
 
 N_SPLITS = 5
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
 
 os.makedirs(rf"{BASE}\models_organoid_17", exist_ok=True)
 

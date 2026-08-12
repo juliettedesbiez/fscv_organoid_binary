@@ -19,7 +19,7 @@ WINDOW_FRAMES = int(2.0 * _cfg['fscv_hz'])
 N_VOLTAGE_PTS = 1100
 MLP_INPUT     = N_VOLTAGE_PTS * WINDOW_FRAMES
 
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
 
 os.makedirs(rf"{BASE}\results_organoid_17", exist_ok=True)
 

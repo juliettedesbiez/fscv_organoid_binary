@@ -3,9 +3,8 @@ Train RF, XGBoost, and MLP — organoid BINARY classifier.
 Classes: 0=baseline (No Event), 1=spontaneous (Event)
 
 Architecture/training loop ported from Phase 2's tuned MLP config
-(lr=1e-4, ReduceLROnPlateau, 100 epochs, patience=15, class weight x4 on
-minority class) — the config that produced Phase 2's best CV result
-(macro F1=0.7764) — with the output layer/loss switched from 3-class to binary.
+(lr=1e-4, ReduceLROnPlateau, 100 epochs, patience=15, class weight x3 on
+minority class)
 
 Usage: python train_models_organoid.py [all|rf|xgb|mlp]
 Run extract_features_organoid.py first.
@@ -29,9 +28,9 @@ N_VOLTAGE_PTS = 1100
 MLP_INPUT     = N_VOLTAGE_PTS * WINDOW_FRAMES
 
 N_SPLITS = 5
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
 
-os.makedirs(rf"{BASE}\models_organoid_17", exist_ok=True)
+os.makedirs(rf"{BASE}\models_organoid", exist_ok=True)
 
 
 def main(selected=None):
@@ -42,8 +41,8 @@ def main(selected=None):
         selected = select_models("train")
 
     if not selected: print("No models selected."); return
-    if not os.path.exists(rf"{BASE}\features_organoid_17.csv"):
-        print("features_organoid_17.csv not found — run extract_features_organoid_17.py first"); return
+    if not os.path.exists(rf"{BASE}\features_organoid.csv"):
+        print("features_organoid.csv not found — run extract_features_organoid.py first"); return
 
     X_feat, y, groups = load_features()
     X_raw, _, _ = load_raw_for_features()
@@ -79,7 +78,7 @@ def train_rf(X, y, groups):
                                    class_weight='balanced', n_jobs=-1,
                                    random_state=RANDOM_STATE)
     final.fit(X, y)
-    pickle.dump({'model': final}, open(rf"{BASE}\models_organoid_17\rf_model.pkl", 'wb'))
+    pickle.dump({'model': final}, open(rf"{BASE}\models_organoid\rf_model.pkl", 'wb'))
     return metrics
 
 
@@ -89,7 +88,7 @@ def train_xgb(X, y, groups):
     y_true_all, y_proba_all = [], []
 
     # Per-class sample weights — same manual approach as Phase 2 (kept for consistency
-    # with your established methodology, rather than switching to scale_pos_weight)
+    # with established methodology, rather than switching to scale_pos_weight)
     class_counts = np.bincount(y)
     sample_weight = np.array([1.0 / class_counts[c] for c in y])
     sample_weight = sample_weight / sample_weight.mean()
@@ -110,7 +109,7 @@ def train_xgb(X, y, groups):
                                objective='binary:logistic',
                                random_state=RANDOM_STATE, verbosity=0)
     final.fit(X, y, sample_weight=sample_weight)
-    pickle.dump({'model': final}, open(rf"{BASE}\models_organoid_17\xgb_model.pkl", 'wb'))
+    pickle.dump({'model': final}, open(rf"{BASE}\models_organoid\xgb_model.pkl", 'wb'))
     return metrics
 
 
@@ -126,9 +125,7 @@ def train_mlp(X, y, groups):
                 nn.Linear(64, 2))          # 2 output classes (was 3 in Phase 2)
         def forward(self, x): return self.net(x)
 
-    # Class weights: minority class (1 = spontaneous/Event) boosted x3,
-    # matching your Phase 2 BEST config (v7: weighted CE + WeightedRandomSampler stacked,
-    # confirmed as the winning arm of your 4-way loss/sampler comparison)
+    # Class weights: minority class (1 = spontaneous/Event) boosted x3
     class_counts = np.bincount(y)
     class_weights = torch.FloatTensor(1.0 / class_counts)
     class_weights[1] *= 3.0
@@ -192,8 +189,8 @@ def train_mlp(X, y, groups):
         y_proba_all.extend(best_proba)
         print(f"  Fold {fold+1}/{N_SPLITS} best F1_macro={best_f1:.4f}")
 
-    np.save(rf"{BASE}\models_organoid_17\mlp_oof_ytrue.npy", np.array(y_true_all))
-    np.save(rf"{BASE}\models_organoid_17\mlp_oof_yproba.npy", np.array(y_proba_all))
+    np.save(rf"{BASE}\models_organoid\mlp_oof_ytrue.npy", np.array(y_true_all))
+    np.save(rf"{BASE}\models_organoid\mlp_oof_yproba.npy", np.array(y_proba_all))
 
     metrics = compute_metrics(np.array(y_true_all), np.array(y_proba_all))
     print_metrics(metrics, "MLP")
@@ -220,7 +217,7 @@ def train_mlp(X, y, groups):
 
     pickle.dump({'model_state': final.state_dict(),
                  'mean': X_all_mean, 'std': X_all_std},
-                 open(rf"{BASE}\models_organoid_17\mlp_model.pkl", 'wb'))
+                 open(rf"{BASE}\models_organoid\mlp_model.pkl", 'wb'))
     return metrics
 
 

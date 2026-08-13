@@ -8,14 +8,14 @@ from sklearn.metrics import roc_auc_score
 RANDOM_STATE = 42
 CLASS_NAMES  = ['No Event', 'Event']
 
-# BASE covers everything this file reads — features_organoid_17.csv and window_arrays/ both live under it
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
+# BASE covers everything this file reads — features_organoid.csv and window_arrays/ both live under it
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
 
 
 def load_features():
-    """Load engineered features from features_organoid_17.csv."""
+    """Load engineered features from features_organoid.csv."""
     print("Loading engineered features...")
-    df = pd.read_csv(rf"{BASE}\features_organoid_17.csv")
+    df = pd.read_csv(rf"{BASE}\features_organoid.csv")
     feat_cols = [c for c in df.columns if c not in ['window_id', 'label', 'group_id']]
     X = df[feat_cols].values.astype(np.float32)
     y, groups = df['label'].values, df['group_id'].astype(str).values
@@ -24,9 +24,9 @@ def load_features():
 
 
 def load_raw_for_features():
-    """Load raw flattened windows matching features_organoid_17.csv order."""
+    """Load raw flattened windows matching features_organoid.csv order."""
     print("Loading raw windows...")
-    df = pd.read_csv(rf"{BASE}\features_organoid_17.csv")
+    df = pd.read_csv(rf"{BASE}\features_organoid.csv")
     X = np.array([np.load(rf"{BASE}\window_arrays\{wid}.npy").flatten()
               for wid in df['window_id']], dtype=np.float32)
     y, groups = df['label'].values, df['group_id'].astype(str).values

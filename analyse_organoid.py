@@ -10,7 +10,7 @@ Generates:
   figures_organoid/feature_importance_rf.jpg
   figures_organoid/feature_importance_xgb.jpg
 
-Run after test_models_organoid_17.py.
+Run after test_models_organoid.py.
 Usage: python analyse_organoid.py [--config fscv_config_organoid.yaml]
 """
 
@@ -28,12 +28,12 @@ from sklearn.metrics import (
 )
 from sklearn.inspection import permutation_importance
 from scipy.stats import skew, kurtosis
-from extract_features_organoid_17 import extract, load_config
+from extract_features_organoid import extract, load_config
 
 warnings.filterwarnings('ignore')
 
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
-os.makedirs(rf"{BASE}\figures_organoid_17", exist_ok=True)
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
+os.makedirs(rf"{BASE}\figures_organoid", exist_ok=True)
 
 CLASS_NAMES  = ['No Event', 'Event']
 COLORS       = {'RF': '#1f77b4', 'XGB': '#ff7f0e', 'MLP': '#2ca02c', 'Ensemble': '#d62728'}
@@ -67,7 +67,7 @@ class MLP(nn.Module):
     def forward(self, x): return self.net(x)
 
 # ── LOAD TEST DATA (17-feature split — this is what RF/XGB were trained/tested on) ──
-test_meta = pd.read_csv(rf"{BASE}\windows_metadata_test_organoid_17.csv")
+test_meta = pd.read_csv(rf"{BASE}\windows_metadata_test_organoid.csv")
 y_test    = test_meta['label'].values
 print(f"Test set: {len(y_test)} samples")
 for i, name in enumerate(CLASS_NAMES):
@@ -87,10 +87,10 @@ X_raw = np.array([np.load(rf"{BASE}\window_arrays\{wid}.npy").flatten()
 print("Loading models...")
 
 # RF/XGB: 17-feature retrain
-rf_data  = pickle.load(open(rf"{BASE}\models_organoid_17\rf_model.pkl",  'rb'))
-xgb_data = pickle.load(open(rf"{BASE}\models_organoid_17\xgb_model.pkl", 'rb'))
+rf_data  = pickle.load(open(rf"{BASE}\models_organoid\rf_model.pkl",  'rb'))
+xgb_data = pickle.load(open(rf"{BASE}\models_organoid\xgb_model.pkl", 'rb'))
 # MLP: original run, unaffected by the feature-engineering change
-mlp_data = pickle.load(open(rf"{BASE}\models_organoid_17\mlp_model.pkl", 'rb'))
+mlp_data = pickle.load(open(rf"{BASE}\models_organoid\mlp_model.pkl", 'rb'))
 
 rf_proba  = rf_data['model'].predict_proba(X_feat)        # (n, 2)
 xgb_proba = xgb_data['model'].predict_proba(X_feat)       # (n, 2)
@@ -137,7 +137,7 @@ for ax, (name, proba) in zip(axes, probas.items()):
     ax.grid(alpha=0.3)
 plt.suptitle('ROC Curves — Test Set', fontsize=13, fontweight='bold')
 plt.tight_layout()
-plt.savefig(rf"{BASE}\figures_organoid_17\roc_curves_test.jpg", dpi=200, bbox_inches='tight')
+plt.savefig(rf"{BASE}\figures_organoid\roc_curves_test.jpg", dpi=200, bbox_inches='tight')
 plt.close()
 print("  ✓ roc_curves_test.jpg")
 
@@ -158,7 +158,7 @@ for ax, (name, proba) in zip(axes, probas.items()):
     ax.grid(alpha=0.3)
 plt.suptitle('Precision-Recall Curves — Test Set', fontsize=13, fontweight='bold')
 plt.tight_layout()
-plt.savefig(rf"{BASE}\figures_organoid_17\pr_curves_test.jpg", dpi=200, bbox_inches='tight')
+plt.savefig(rf"{BASE}\figures_organoid\pr_curves_test.jpg", dpi=200, bbox_inches='tight')
 plt.close()
 print("  ✓ pr_curves_test.jpg")
 
@@ -175,7 +175,7 @@ for idx, (name, proba) in enumerate(probas.items()):
     axes.flat[idx].tick_params(axis='x', rotation=30)
 plt.suptitle('Confusion Matrices — Test Set', fontsize=14, fontweight='bold')
 plt.tight_layout()
-plt.savefig(rf"{BASE}\figures_organoid_17\confusion_matrices_test.jpg", dpi=200, bbox_inches='tight')
+plt.savefig(rf"{BASE}\figures_organoid\confusion_matrices_test.jpg", dpi=200, bbox_inches='tight')
 plt.close()
 print("  ✓ confusion_matrices_test.jpg")
 
@@ -207,7 +207,7 @@ for row, label, color in [
 
 ax.set_title('MLP Gradient Saliency Map — Input Importance', fontsize=14, fontweight='bold')
 plt.tight_layout()
-plt.savefig(rf"{BASE}\figures_organoid_17\mlp_saliency.jpg", dpi=200, bbox_inches='tight')
+plt.savefig(rf"{BASE}\figures_organoid\mlp_saliency.jpg", dpi=200, bbox_inches='tight')
 plt.close()
 print("  ✓ mlp_saliency.jpg")
 
@@ -227,7 +227,7 @@ ax.set_xlabel('Normalised Permutation Importance (max=1)', fontsize=12)
 ax.set_title('Random Forest — Permutation Feature Importance (17 features)', fontsize=13, fontweight='bold')
 ax.grid(axis='x', alpha=0.3)
 plt.tight_layout()
-plt.savefig(rf"{BASE}\figures_organoid_17\feature_importance_rf.jpg", dpi=200, bbox_inches='tight')
+plt.savefig(rf"{BASE}\figures_organoid\feature_importance_rf.jpg", dpi=200, bbox_inches='tight')
 plt.close()
 print("  ✓ feature_importance_rf.jpg")
 
@@ -253,8 +253,8 @@ ax.set_xlabel('Mean |SHAP| (normalised)', fontsize=12)
 ax.set_title('XGBoost — SHAP Feature Importance (Binary, 17 features)', fontsize=13, fontweight='bold')
 ax.grid(axis='x', alpha=0.3)
 plt.tight_layout()
-plt.savefig(rf"{BASE}\figures_organoid_17\feature_importance_xgb.jpg", dpi=200, bbox_inches='tight')
+plt.savefig(rf"{BASE}\figures_organoid\feature_importance_xgb.jpg", dpi=200, bbox_inches='tight')
 plt.close()
 print("  ✓ feature_importance_xgb.jpg")
 
-print("\n✓ ANALYSIS COMPLETE — 6 figures saved to figures_organoid_17/")
+print("\n✓ ANALYSIS COMPLETE — 6 figures saved to figures_organoid/")

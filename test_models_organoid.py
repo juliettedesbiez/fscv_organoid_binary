@@ -19,34 +19,34 @@ WINDOW_FRAMES = int(2.0 * _cfg['fscv_hz'])
 N_VOLTAGE_PTS = 1100
 MLP_INPUT     = N_VOLTAGE_PTS * WINDOW_FRAMES
 
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
 
-os.makedirs(rf"{BASE}\results_organoid_17", exist_ok=True)
+os.makedirs(rf"{BASE}\results_organoid", exist_ok=True)
 
 def test_rf(X, y):
-    path = rf"{BASE}\models_organoid_17\rf_model.pkl"
+    path = rf"{BASE}\models_organoid\rf_model.pkl"
     if not os.path.exists(path): print("RF model not found"); return None
     data  = pickle.load(open(path, 'rb'))
     proba = data['model'].predict_proba(X)         # (n, 2)
     metrics = compute_metrics(y, proba)
     print_metrics(metrics, 'RF')
-    json.dump(metrics, open(rf"{BASE}\results_organoid_17\rf_test.json", 'w'), default=float)
-    np.save(rf"{BASE}\results_organoid_17\rf_proba.npy", proba)
+    json.dump(metrics, open(rf"{BASE}\results_organoid\rf_test.json", 'w'), default=float)
+    np.save(rf"{BASE}\results_organoid\rf_proba.npy", proba)
     return metrics
 
 def test_xgb(X, y):
-    path = rf"{BASE}\models_organoid_17\xgb_model.pkl"
+    path = rf"{BASE}\models_organoid\xgb_model.pkl"
     if not os.path.exists(path): print("XGB model not found"); return None
     data  = pickle.load(open(path, 'rb'))
     proba = data['model'].predict_proba(X)         # (n, 2)
     metrics = compute_metrics(y, proba)
     print_metrics(metrics, 'XGB')
-    json.dump(metrics, open(rf"{BASE}\results_organoid_17\xgb_test.json", 'w'), default=float)
-    np.save(rf"{BASE}\results_organoid_17\xgb_proba.npy", proba)
+    json.dump(metrics, open(rf"{BASE}\results_organoid\xgb_test.json", 'w'), default=float)
+    np.save(rf"{BASE}\results_organoid\xgb_proba.npy", proba)
     return metrics
 
 def test_mlp(X, y):
-    path = rf"{BASE}\models_organoid_17\mlp_model.pkl"
+    path = rf"{BASE}\models_organoid\mlp_model.pkl"
     if not os.path.exists(path): print("MLP model not found"); return None
 
     class MLP(nn.Module):
@@ -69,8 +69,8 @@ def test_mlp(X, y):
 
     metrics = compute_metrics(y, proba)
     print_metrics(metrics, 'MLP')
-    json.dump(metrics, open(rf"{BASE}\results_organoid_17\mlp_test.json", 'w'), default=float)
-    np.save(rf"{BASE}\results_organoid_17\mlp_proba.npy", proba)
+    json.dump(metrics, open(rf"{BASE}\results_organoid\mlp_test.json", 'w'), default=float)
+    np.save(rf"{BASE}\results_organoid\mlp_proba.npy", proba)
     return metrics
 
 def main(selected=None):
@@ -89,7 +89,7 @@ def main(selected=None):
     if not selected: return
 
     print("\nLoading TEST set...")
-    test_meta = pd.read_csv(rf"{BASE}\windows_metadata_test_organoid_17.csv")
+    test_meta = pd.read_csv(rf"{BASE}\windows_metadata_test_organoid.csv")
     y_test    = test_meta['label'].values
 
     print(f"Test set: {len(y_test)} samples")

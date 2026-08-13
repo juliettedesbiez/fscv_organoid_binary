@@ -28,10 +28,10 @@ import yaml
 
 # Paths - organoid-specific
 PLOT_DIR   = r"C:\Users\julie\OneDrive - Imperial College London\organoid data"       # <-- confirm exact folder name
-LABELS_CSV = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output\FSCV_Labels_July.csv"  # <-- confirm exact filename from Labelling_App_organoid.py
+LABELS_CSV = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output\FSCV_Labels.csv"  # <-- confirm exact filename from Labelling_App_organoid.py
 
 # BASE covers everything this script writes — window_arrays/ and windows_metadata.csv both live under it
-BASE       = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
+BASE       = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
 WINDOW_DIR = rf"{BASE}\window_arrays"
 
 def load_config(path="fscv_config_organoid.yaml"):

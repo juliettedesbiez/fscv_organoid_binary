@@ -61,7 +61,7 @@ Two behaviours worth knowing about in this script:
 ### `extract_features_organoid.py`, `utils_organoid.py`, `train_models_organoid.py`, `test_models_organoid.py`, `ensemble_organoid.py`, `analyse_organoid.py`
 Each has a `BASE` constant near the top:
 ```python
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
 ```
 **This must be identical across all seven files (including `make_windows_organoid.py`)** — each script writes into `BASE\...` and the next one reads from `BASE\...`.
 
@@ -104,7 +104,7 @@ interactive prompt asking which model(s) to run (options limited to RF/XGB/MLP
 ## 4. Outputs you'll end up with (inside `BASE`)
 
 ```
-organoid data output retrain 3/
+organoid data output/
 ├── window_arrays/                            (step 1)
 ├── windows_metadata.csv                      (step 1 — all windows)
 ├── features_organoid.csv                  (step 2 — train features, 17 cols + label/group/window_id)

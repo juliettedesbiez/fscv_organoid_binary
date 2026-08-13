@@ -38,7 +38,35 @@ no separate or legacy model folder is used anywhere in this pipeline.
 
 ---
 
-## 2. What needs changing before you run anything
+## 2. Sign convention
+
+The raw `.txt`/`.npy` recording files use a sign convention that renders
+backwards on Pablo's colormap if left uncorrected. The visual symptom:
+oxidation renders **blue** and reduction renders **green** — backwards from
+the correct convention (oxidation **green**, reduction **blue**).
+
+`make_windows_organoid.py`'s `load_arr()` corrects for this before any
+windowing happens:
+```python
+def load_arr(path):
+    arr = np.load(path) if path.endswith('.npy') else np.loadtxt(path)
+    arr = arr[np.newaxis, :] if arr.ndim == 1 else arr
+    return -arr
+```
+Every window written to `window_arrays/` is already sign-corrected — nothing
+downstream (`extract_features_organoid.py`, training, testing) needs to do
+anything about sign, since it only ever reads from `window_arrays/`.
+
+If you're setting up a fresh copy of `make_windows_organoid.py`, confirm
+this `-arr` is present before running step 1 — if it's missing, every
+window generated will be sign-flipped, silently, with no error. The
+labelling app (`Labelling_App.py`) has the same fix in its own `load_arr()`;
+both need to agree on the same convention since one produces the labels the
+other consumes.
+
+---
+
+## 3. What needs changing before you run anything
 
 Nothing here takes an input/output folder as a command-line argument — paths
 are hardcoded at the top of each file.
@@ -80,7 +108,7 @@ balance_ratio: 2              # baseline:event ratio when balancing classes
 
 ---
 
-## 3. How to run
+## 4. How to run
 
 From the folder containing all the scripts and `fscv_config_organoid.yaml`:
 
@@ -101,7 +129,7 @@ interactive prompt asking which model(s) to run (options limited to RF/XGB/MLP
 
 ---
 
-## 4. Outputs you'll end up with (inside `BASE`)
+## 5. Outputs you'll end up with (inside `BASE`)
 
 ```
 organoid data output/
@@ -126,7 +154,7 @@ organoid data output/
 
 ---
 
-## 5. Quick sanity checks
+## 6. Quick sanity checks
 
 - Step 1 print-out should show a plausible split of baseline vs. event
   files and a non-zero window count for both classes. Also check the

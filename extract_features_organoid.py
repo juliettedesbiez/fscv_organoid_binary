@@ -3,17 +3,6 @@ Extract features (12 original + rise_time, decay_time [fixed], ox_red_ratio
 [fixed], rise_slope, ox_red_lag = 17 features) then create balanced 70:30
 train/test split (group-aware, no data leakage) — Organoid (BINARY).
  
-decay_time and ox_red_ratio use the FIXED formulas from the 3-class 28-feature
-round (extract_features_3class_28.py) — the earlier 15-feature versions of
-these two were flagged as unstable (decay_time collapses near-zero for real
-events; ox_red_ratio has extreme outliers) and are NOT used here.
- 
-ox_red_lag is the key addition for organoid: it directly encodes the gap
-between the oxidation peak and the reduction trough, i.e. the paired
-oxidation/reduction relationship the interpretability gate is checking for.
-Previously, trough_current was (incorrectly) computed from the oxidation
-slice — RF/XGB had no reduction-band-specific feature at all. Fixed here.
- 
 Usage: python extract_features_organoid.py [--config fscv_config_organoid.yaml]
  
 Classes: 0=baseline, 1=spontaneous
@@ -26,7 +15,7 @@ import yaml
 from scipy.stats import skew, kurtosis
 from utils_organoid import RANDOM_STATE
  
-BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output retrain 3"
+BASE = r"C:\Users\julie\OneDrive - Imperial College London\organoid data output"
  
 def load_config(path="fscv_config_organoid.yaml"):
     with open(path, 'r') as f:
@@ -142,14 +131,14 @@ def main():
         for _, r in train.iterrows()
     ])
  
-    features.to_csv(rf"{BASE}\features_organoid_17.csv", index=False)
+    features.to_csv(rf"{BASE}\features_organoid.csv", index=False)
  
     # SAVE TEST METADATA for later
     test = balanced[balanced['split'] == 'test']
-    test[['window_id', 'file_id', 'group_id', 'label']].to_csv(rf"{BASE}\windows_metadata_test_organoid_17.csv", index=False)
+    test[['window_id', 'file_id', 'group_id', 'label']].to_csv(rf"{BASE}\windows_metadata_test_organoid.csv", index=False)
  
-    print(f"\n✓ {BASE}\\features_organoid_17.csv ({len(features)} samples, {len(features.columns)-3} features)")
-    print(f"✓ {BASE}\\windows_metadata_test_organoid_17.csv ({len(test)} samples)")
+    print(f"\n✓ {BASE}\\features_organoid.csv ({len(features)} samples, {len(features.columns)-3} features)")
+    print(f"✓ {BASE}\\windows_metadata_test_organoid.csv ({len(test)} samples)")
  
 if __name__ == "__main__":
     main()

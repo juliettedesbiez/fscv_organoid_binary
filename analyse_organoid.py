@@ -59,6 +59,8 @@ with open(args.config) as f:
 WINDOW_FRAMES = int(2.0 * _yaml['fscv_hz'])
 N_VOLTAGE_PTS = 1100
 MLP_INPUT     = N_VOLTAGE_PTS * WINDOW_FRAMES
+V_OX_START, V_OX_END   = cfg['v_oxidation_start'], cfg['v_oxidation_end']
+V_RED_START, V_RED_END = cfg['v_reduction_start'], cfg['v_reduction_end']
 
 # ── MLP ARCHITECTURE (must match train_models_organoid.py) ───────────────────
 class MLP(nn.Module):
@@ -184,6 +186,7 @@ plt.close()
 print("  ✓ confusion_matrices_test.jpg")
 
 # ── 4. MLP GRADIENT SALIENCY ──────────────────────────────────────────────────
+# ── 4. MLP GRADIENT SALIENCY ──────────────────────────────────────────────────
 print("[4/6] MLP Gradient Saliency...")
 mlp_m.eval()
 X_sal = torch.FloatTensor(X_norm)
@@ -195,6 +198,7 @@ logits.backward()
 
 saliency    = np.abs(X_sal.grad.detach().numpy()).mean(axis=0)
 saliency_2d = saliency.reshape(N_VOLTAGE_PTS, WINDOW_FRAMES)
+saliency_by_voltage = saliency_2d.mean(axis=1)                 # (1100,) averaged over time
 
 fig, ax = plt.subplots(figsize=(12, 6), dpi=200)
 im = ax.imshow(saliency_2d, aspect='auto', cmap='hot', origin='lower')
@@ -206,6 +210,44 @@ plt.tight_layout()
 plt.savefig(rf"{BASE}\figures_organoid\mlp_saliency.jpg", dpi=200, bbox_inches='tight')
 plt.close()
 print("  ✓ mlp_saliency.jpg")
+
+# Quantitative convergence check — enrichment relative to a uniform-attention baseline,
+# not just raw percentage share (since the two bands don't span equal, or 50%, of the axis)
+total_saliency = saliency_by_voltage.sum()
+ox_frac  = saliency_by_voltage[V_OX_START:V_OX_END].sum() / total_saliency
+red_frac = saliency_by_voltage[V_RED_START:V_RED_END].sum() / total_saliency
+
+ox_width_frac   = (V_OX_END - V_OX_START) / N_VOLTAGE_PTS
+red_width_frac  = (V_RED_END - V_RED_START) / N_VOLTAGE_PTS
+band_width_frac = ox_width_frac + red_width_frac
+
+ox_enrichment       = ox_frac / ox_width_frac
+red_enrichment      = red_frac / red_width_frac
+combined_enrichment = (ox_frac + red_frac) / band_width_frac
+
+print(f"\n  Oxidation band ({V_OX_START}-{V_OX_END}): {ox_frac*100:.1f}% of saliency "
+      f"vs. {ox_width_frac*100:.1f}% expected by chance  →  {ox_enrichment:.2f}x enrichment")
+print(f"  Reduction band ({V_RED_START}-{V_RED_END}): {red_frac*100:.1f}% of saliency "
+      f"vs. {red_width_frac*100:.1f}% expected by chance  →  {red_enrichment:.2f}x enrichment")
+print(f"  Combined: {(ox_frac+red_frac)*100:.1f}% of saliency vs. {band_width_frac*100:.1f}% "
+      f"expected by chance  →  {combined_enrichment:.2f}x enrichment")
+
+print("\n" + "=" * 50)
+print("INTERPRETABILITY GATE (enrichment-based, >1.0x = above-chance reliance)")
+print("=" * 50)
+for name, enr in [("Oxidation", ox_enrichment), ("Reduction", red_enrichment), ("Combined", combined_enrichment)]:
+    status = "ABOVE CHANCE" if enr > 1.0 else "AT/BELOW CHANCE"
+    print(f"  {name:10s}: {enr:.2f}x  →  {status}")
+
+if ox_enrichment > 1.0 and red_enrichment > 1.0:
+    print("\nBoth bands show above-chance saliency — full interpretability convergence.")
+elif ox_enrichment > 1.0 or red_enrichment > 1.0:
+    print("\nPartial convergence — only one band shows above-chance reliance.")
+    print("Report which band specifically, and note this explicitly rather than")
+    print("claiming full oxidation+reduction convergence.")
+else:
+    print("\nNeither band shows above-chance saliency — REVIEW NEEDED,")
+    print("saliency does not appear to concentrate on electrochemically meaningful regions.")
 
 # ── 5A. RANDOM FOREST — PERMUTATION IMPORTANCE ────────────────────────────────
 print("[5a/6] RF Permutation Importance...")
